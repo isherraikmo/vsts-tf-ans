@@ -2,9 +2,9 @@ FROM microsoft/vsts-agent:latest
 
 # Build-time metadata as defined at http://label-schema.org
 
-LABEL org.label-schema.name="VSTS Agent with Infrastrucure Tools" \
-    org.label-schema.url="https://github.com/lenisha/" \
-    org.label-schema.vcs-url="https://github.com/lenisha/vsts-agent-infrastructure" \
+LABEL org.label-schema.name="VSTS Agent with TF & ANSIBLE" \
+    org.label-schema.url="https://github.com/karanotts/" \
+    org.label-schema.vcs-url="https://github.com/karanotts/vsts-tf-ans" \
     org.label-schema.schema-version="1.0"
                 
 ENV TERRAFORM_VERSION 0.11.13
