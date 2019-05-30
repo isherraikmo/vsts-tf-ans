@@ -1,28 +1,56 @@
-FROM microsoft/vsts-agent:latest
+FROM ubuntu:16.04
 
-# Build-time metadata as defined at http://label-schema.org
-
-LABEL org.label-schema.name="VSTS Agent with TF & ANSIBLE" \
-    org.label-schema.url="https://github.com/karanotts/" \
-    org.label-schema.vcs-url="https://github.com/karanotts/vsts-tf-ans" \
-    org.label-schema.schema-version="1.0"
-                
+ENV DEBIAN_FRONTEND=noninteractive
 ENV TERRAFORM_VERSION 0.11.13
 
+RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
 
-# Install Terraform
-RUN echo "===> Installing Terraform ${TERRAFORM_VERSION}..." \
- && wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
- &&	unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
- && mv terraform /usr/local/bin/terraform \
- && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip 
-	
-# Install Ansible
-RUN  echo "===> Installing Ansible..." \
- && apt-get update \   
- && apt-get install -y ansible \      
- && rm -rf /var/lib/apt/lists/*      \ 
- && echo "===> Adding hosts for convenience..." \
- && mkdir -p /etc/ansible                       \
- && echo 'localhost' > /etc/ansible/hosts
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+            apt-utils \
+            apt-transport-https \
+            ca-certificates \
+            curl \
+            jq \
+            git \
+            gnupg \
+            iputils-ping \
+            libcurl3 \
+            libicu55 \
+            lsb-release \
+            openssh-server \
+            software-properties-common \
+            unzip \
+            wget
 
+RUN wget https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+    && unzip terraform_${TERRAFORM_VERSION}_linux_amd64.zip \
+    && mv terraform /usr/local/bin/terraform \
+    && rm terraform_${TERRAFORM_VERSION}_linux_amd64.zip
+
+RUN curl -sL https://packages.microsoft.com/keys/microsoft.asc | \
+    gpg --dearmor | \
+    tee /etc/apt/trusted.gpg.d/microsoft.asc.gpg > /dev/null \
+    && AZ_REPO=$(lsb_release -cs) \
+    && echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | \
+    tee /etc/apt/sources.list.d/azure-cli.list
+
+RUN useradd -m ansible && echo "ansible:ansible" | chpasswd && adduser ansible sudo 
+
+RUN apt-add-repository --y --u ppa:ansible/ansible \
+    && apt-get update \
+    && apt-get install -y \
+             ansible \
+	     azure-cli \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir -p /etc/ansible \
+    && echo 'localhost' > /etc/ansible/hosts
+
+EXPOSE 80 22
+
+WORKDIR /azp
+
+COPY ./start.sh .
+RUN chmod +x start.sh
+
+CMD ["./start.sh"]
