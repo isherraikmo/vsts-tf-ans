@@ -1,5 +1,5 @@
 resource "azurerm_resource_group" "aci-rg" {
-  name     = "rdo-aci-vsts"
+  name     = "rdo-ado-agents"
   location = "UK South"
 }
 
@@ -36,18 +36,22 @@ resource "azurerm_container_group" "aci-vsts" {
   ip_address_type     = "public"
   os_type             = "linux"
 
+
   container {
     name   = "rdo-vsts-agent"
-    image  = "karanotts/vsts-tf-ans"
+    image  = "karanotts/dockervstsagent:sshd"
     cpu    = "0.5"
     memory = "1.5"
-    port   = "80"
+    ports  {
+      port      = "22"
+      protocol  = "TCP"
+    }
 
     environment_variables {
-      "VSTS_ACCOUNT" = "${var.vsts-account}"
-      "VSTS_TOKEN"   = "${var.vsts-token}"
-      "VSTS_AGENT"   = "${var.vsts-agent}"
-      "VSTS_POOL"    = "${var.vsts-pool}"
+      "AZP_URL"        = "${var.vsts-url}"
+      "AZP_TOKEN"      = "${var.vsts-token}"
+      "AZP_AGENT_NAME" = "${var.vsts-agent}"
+      "AZP_POOL"       = "${var.vsts-pool}"
     }
 
     volume {
