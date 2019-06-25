@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TERRAFORM_VERSION 0.11.13
+ENV TERRAFORM_VERSION 0.12.2
 
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
 
@@ -42,6 +42,9 @@ RUN apt-add-repository --y --u ppa:ansible/ansible \
     && apt-get install -y \
              ansible \
 	     azure-cli \
+             python3-pip \
+    && python3 -m pip install --upgrade pip \
+    && pip install pywinrm \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /etc/ansible \
     && echo 'localhost' > /etc/ansible/hosts
