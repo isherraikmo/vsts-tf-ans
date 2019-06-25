@@ -42,14 +42,13 @@ RUN apt-add-repository --y --u ppa:ansible/ansible \
     && apt-get install -y \
              ansible \
 	     azure-cli \
-             python3-pip \
-    && python3 -m pip install --upgrade pip \
+             python-pip \
     && pip install pywinrm \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir -p /etc/ansible \
     && echo 'localhost' > /etc/ansible/hosts
 
-EXPOSE 80 22
+EXPOSE 22
 
 WORKDIR /azp
 
