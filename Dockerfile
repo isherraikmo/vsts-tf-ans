@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-ENV TERRAFORM_VERSION 0.12.2
+ENV TERRAFORM_VERSION 0.11.14
 
 RUN echo "APT::Get::Assume-Yes \"true\";" > /etc/apt/apt.conf.d/90assumeyes
 
